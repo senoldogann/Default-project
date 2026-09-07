@@ -31,6 +31,7 @@ docs/decisions/ADR-TEMPLATE.md
 docs/plans/README.md
 docs/plans/PLAN-TEMPLATE.md
 docs/reliability/README.md
+docs/reliability/BASELINE_CHANGELOG.md
 docs/reliability/GITHUB_PROTECTIONS.md
 docs/reliability/UPGRADING.md
 .github/copilot-instructions.md
