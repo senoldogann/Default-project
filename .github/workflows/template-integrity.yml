@@ -17,6 +17,12 @@ jobs:
         run: bash scripts/validate-template.sh
       - name: Test GitHub repository setup helper
         run: bash scripts/test-github-setup.sh
+      - name: Test default-init distribution when present
+        shell: bash
+        run: |
+          if [ -f scripts/test-default-init.sh ]; then
+            bash scripts/test-default-init.sh
+          fi
       - name: Smoke-test checkpoint helper
         shell: bash
         run: |
