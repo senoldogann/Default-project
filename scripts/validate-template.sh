@@ -21,9 +21,6 @@ fail() {
 required_files='AGENTS.md
 CLAUDE.md
 GEMINI.md
-README.md
-.editorconfig
-.gitignore
 .agent/README.md
 .agent/HANDOFF.example.md
 docs/README.md
@@ -32,20 +29,15 @@ docs/decisions/README.md
 docs/decisions/ADR-TEMPLATE.md
 docs/plans/README.md
 docs/plans/PLAN-TEMPLATE.md
-docs/plans/active/.gitkeep
-docs/plans/completed/.gitkeep
 docs/reliability/README.md
 .github/copilot-instructions.md
-.github/ISSUE_TEMPLATE/bug.yml
-.github/ISSUE_TEMPLATE/feature.yml
-.github/pull_request_template.md
 .github/workflows/template-integrity.yml
 scripts/checkpoint.sh
 scripts/validate-template.sh'
 
-printf '%s\n' 'Checking required files...'
+printf '%s\n' 'Checking agent-harness files...'
 printf '%s\n' "$required_files" | while IFS= read -r file; do
-  [ -f "$file" ] || fail "missing required file: $file"
+  [ -f "$file" ] || fail "missing required harness file: $file"
 done
 
 agents_lines=$(wc -l < AGENTS.md | tr -d ' ')
@@ -64,15 +56,14 @@ for heading in '## Start every task' '## Evidence priority' '## Context discipli
   grep -qF "$heading" AGENTS.md || fail "AGENTS.md missing required section: $heading"
 done
 
-[ ! -e .agent/HANDOFF.md ] || fail 'template must not ship with an active .agent/HANDOFF.md'
-[ ! -e docs/superpowers ] || fail 'construction-only docs/superpowers must not ship in the reusable template'
+for file in AGENTS.md CLAUDE.md GEMINI.md .github/copilot-instructions.md; do
+  last_byte=$(tail -c 1 "$file" | od -An -t x1 | tr -d '[:space:]')
+  [ "$last_byte" = '0a' ] || fail "$file must end with a newline"
+done
 
 bash -n scripts/checkpoint.sh
 bash -n scripts/validate-template.sh
 [ -x scripts/checkpoint.sh ] || fail 'scripts/checkpoint.sh must be executable'
 [ -x scripts/validate-template.sh ] || fail 'scripts/validate-template.sh must be executable'
 
-placeholder_hits=$(git grep -n -E 'T[B]D|T[O]DO' -- . 2>/dev/null || true)
-[ -z "$placeholder_hits" ] || fail "placeholder markers found:\n$placeholder_hits"
-
-printf '%s\n' 'PASS: template integrity checks succeeded'
+printf '%s\n' 'PASS: agent-harness integrity checks succeeded'

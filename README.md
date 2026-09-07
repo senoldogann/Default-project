@@ -91,19 +91,19 @@ bash scripts/checkpoint.sh
 
 Prints repository root, branch, HEAD, worktree state, staged/unstaged diff summaries, and recent commits. It does not edit or commit anything.
 
-### Template integrity
+### Harness integrity
 
 ```bash
 bash scripts/validate-template.sh
 ```
 
-Checks required harness files, instruction size limits, provider bridges, shell syntax, temporary-state hygiene, placeholder leakage, and construction-only artifacts.
+Checks the core agent-harness files, instruction size limits, canonical provider bridges, instruction-file newlines, and shell syntax. It deliberately does not ban application `TODO`s, active handoffs, agent-specific planning directories, or normal project customization.
 
 Application tests are intentionally **not** guessed by this script. Each derived project should encode its real build/test/lint/typecheck commands in CI or repository scripts, then let agents discover and execute those sources of truth.
 
 ## Provider compatibility
 
-The provider-neutral contract is root `AGENTS.md`. Tiny bootstrap files cover tools that discover provider-specific filenames without creating separate policy copies. GitHub Copilot also supports repository/path-specific instructions and task-specific skills; add those only when a derived project has a genuine scoped need.
+The provider-neutral contract is root `AGENTS.md`. Tiny bootstrap files cover tools that discover provider-specific filenames without creating separate policy copies. GitHub Copilot supports repository/path-specific instructions and task-specific skills; add those only when a derived project has a genuine scoped need. Cursor currently supports root and nested `AGENTS.md` directly, so it needs no extra always-on rule file.
 
 Other coding agents can use the same repository contract by reading `AGENTS.md` at session start. If a tool requires a different bootstrap filename, prefer a tiny pointer rather than duplicating the policy.
 
@@ -115,5 +115,6 @@ This structure is informed by current public agent-engineering guidance as of 20
 - OpenAI: externalized agent state and rehydration for durable long-running work — https://openai.com/index/the-next-evolution-of-the-agents-sdk/
 - Anthropic: finite-context engineering, git/progress artifacts, structured handoffs, and independent evaluation for work that needs it — https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents and https://www.anthropic.com/engineering/harness-design-long-running-apps
 - GitHub Copilot: repository-wide, path-specific, agent instructions, and on-demand skills as distinct customization layers — https://docs.github.com/en/copilot/concepts/agents/code-review
+- Cursor: `AGENTS.md` is a first-class project instruction format and can be scoped through nested files when needed — https://cursor.com/docs/rules
 
 The common idea is simple: preserve **high-signal durable state**, retrieve it selectively, and verify outcomes in the environment rather than trusting the model's recollection.
