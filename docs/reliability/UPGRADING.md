@@ -6,13 +6,13 @@ Repositories created from a GitHub template are snapshots, not live children of 
 
 `.agent/BASELINE_VERSION` records the agent/repository-governance baseline that existed when the project was created or last deliberately reconciled.
 
-It is **not** an application version and it is **not** a package dependency.
+It is **not** an application version and it is **not** a package dependency. Baseline changes are summarized in `BASELINE_CHANGELOG.md`.
 
 ## Upgrade policy
 
 When a newer Default Project baseline exists:
 
-1. Read the newer baseline changelog/release notes or compare the relevant harness files.
+1. Read `BASELINE_CHANGELOG.md` for the newer baseline and compare relevant harness files when necessary.
 2. Classify each change as security/reliability, agent-operating policy, GitHub governance, or optional documentation.
 3. Port only changes that are useful to the derived repository.
 4. Preserve project-specific `AGENTS.md`, CI, architecture, and workflow decisions unless the new baseline intentionally supersedes them.
