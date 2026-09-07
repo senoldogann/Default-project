@@ -137,6 +137,16 @@ init_new_project() {
     die '--public/--private requires --github'
   fi
 
+  ensure_target_is_safe "$target"
+  trimmed_target=${target%/}
+  [ -n "$trimmed_target" ] || die 'target directory cannot be filesystem root'
+  project_name=$(basename "$trimmed_target")
+  [ -n "$project_name" ] || die 'could not determine project name'
+
+  if $github && ! printf '%s' "$project_name" | grep -Eq '^[A-Za-z0-9._-]+$'; then
+    die 'GitHub mode requires a repository name using only letters, numbers, ., _, or -'
+  fi
+
   require_command git
   require_command curl
   require_command tar
@@ -147,12 +157,6 @@ init_new_project() {
     git config --get user.name >/dev/null 2>&1 || die 'git user.name is required for --github mode'
     git config --get user.email >/dev/null 2>&1 || die 'git user.email is required for --github mode'
   fi
-
-  ensure_target_is_safe "$target"
-  trimmed_target=${target%/}
-  [ -n "$trimmed_target" ] || die 'target directory cannot be filesystem root'
-  project_name=$(basename "$trimmed_target")
-  [ -n "$project_name" ] || die 'could not determine project name'
 
   work=$(mktemp -d)
   cleanup() { rm -rf "$work"; }
