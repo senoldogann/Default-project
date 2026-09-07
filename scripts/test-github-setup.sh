@@ -94,6 +94,8 @@ derived_log="$work/derived.log"
 run_setup "$derived_log" acme/service
 assert_contains "$derived_log" 'api method=PATCH url=repos/acme/service'
 assert_contains "$derived_log" 'api method=POST url=repos/acme/service/rulesets'
+assert_contains "$derived_log" '"type": "required_linear_history"'
+assert_contains "$derived_log" '"allowed_merge_methods": ["squash"]'
 assert_contains "$derived_log" 'api method=PUT url=repos/acme/service/vulnerability-alerts'
 assert_contains "$derived_log" 'api method=PUT url=repos/acme/service/automated-security-fixes'
 assert_contains "$derived_log" 'api method=PUT url=repos/acme/service/private-vulnerability-reporting'
