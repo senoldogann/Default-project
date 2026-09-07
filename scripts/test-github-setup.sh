@@ -94,7 +94,11 @@ derived_log="$work/derived.log"
 run_setup "$derived_log" acme/service
 assert_contains "$derived_log" 'api method=PATCH url=repos/acme/service'
 assert_contains "$derived_log" 'api method=POST url=repos/acme/service/rulesets'
+assert_contains "$derived_log" 'api method=PUT url=repos/acme/service/vulnerability-alerts'
+assert_contains "$derived_log" 'api method=PUT url=repos/acme/service/automated-security-fixes'
 assert_contains "$derived_log" 'api method=PUT url=repos/acme/service/private-vulnerability-reporting'
+assert_contains "$derived_log" '"secret_scanning": {"status": "enabled"}'
+assert_contains "$derived_log" '"secret_scanning_push_protection": {"status": "enabled"}'
 assert_not_contains "$derived_log" 'repos/acme/service/topics'
 assert_not_contains "$derived_log" '"is_template": true'
 
