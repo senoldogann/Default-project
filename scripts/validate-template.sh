@@ -85,4 +85,31 @@ done
 [ -x scripts/validate-template.sh ] || fail 'scripts/validate-template.sh must be executable'
 [ -x scripts/apply-github-protections.sh ] || fail 'scripts/apply-github-protections.sh must be executable'
 
+# Distribution-only checks run in the canonical template repository. The manifest
+# itself is intentionally not copied into derived projects.
+if [ -f baseline.manifest ]; then
+  for file in bin/default-init scripts/install-default-init.sh scripts/test-default-init.sh; do
+    [ -f "$file" ] || fail "missing canonical distribution file: $file"
+    bash -n "$file"
+  done
+
+  cli_version=$(bash bin/default-init version)
+  [ "$cli_version" = "default-init $baseline_version" ] || fail "CLI version ($cli_version) must match baseline $baseline_version"
+
+  while IFS= read -r raw_entry || [ -n "$raw_entry" ]; do
+    entry=${raw_entry%$'\r'}
+    case "$entry" in
+      ''|'#'*) continue ;;
+      /*|..|../*|*/..|*/../*) fail "unsafe path in baseline.manifest: $entry" ;;
+    esac
+    [ -e "$entry" ] || fail "baseline.manifest references missing path: $entry"
+  done < baseline.manifest
+
+  for forbidden in LICENSE .github/CODEOWNERS docs/assets bin/default-init scripts/install-default-init.sh scripts/test-default-init.sh docs/plans/active/default-init-cli.md; do
+    if grep -qxF "$forbidden" baseline.manifest; then
+      fail "canonical-only path must not be portable: $forbidden"
+    fi
+  done
+fi
+
 printf '%s\n' 'PASS: agent-harness integrity checks succeeded'
