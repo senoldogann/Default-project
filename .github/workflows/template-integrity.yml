@@ -15,3 +15,11 @@ jobs:
         uses: actions/checkout@v7
       - name: Validate agent-ready template
         run: bash scripts/validate-template.sh
+      - name: Smoke-test checkpoint helper
+        shell: bash
+        run: |
+          output=$(bash scripts/checkpoint.sh)
+          printf '%s\n' "$output"
+          grep -q '^=== repository checkpoint ===$' <<< "$output"
+          grep -q '^head: ' <<< "$output"
+          grep -q '^--- recent commits ---$' <<< "$output"
