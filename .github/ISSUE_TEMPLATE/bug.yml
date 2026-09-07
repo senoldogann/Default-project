@@ -1,0 +1,47 @@
+name: Bug report
+description: Report reproducible behavior that differs from the intended result
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: "Provide evidence another developer or agent can reproduce. Keep secrets and private data out of the issue."
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is broken?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Minimal exact steps, inputs, or commands that reproduce the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Relevant environment
+      description: Versions, platform, commit, configuration, or other facts that materially affect reproduction.
+    validations:
+      required: false
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Focused logs, failing test names, screenshots, traces, or links. Remove secrets and unrelated data.
+    validations:
+      required: false

@@ -1,0 +1,1 @@
+Use the repository-root `AGENTS.md` as the canonical project instruction source. Read it before making or reviewing changes. Do not duplicate its policy here, and retrieve deeper repository context only when the current task requires it.
