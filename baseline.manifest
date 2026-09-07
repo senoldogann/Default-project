@@ -10,7 +10,6 @@ GEMINI.md
 .agent/HANDOFF.example.md
 .github/copilot-instructions.md
 .github/ISSUE_TEMPLATE/bug.yml
-.github/ISSUE_TEMPLATE/config.yml
 .github/ISSUE_TEMPLATE/feature.yml
 .github/pull_request_template.md
 .github/workflows/template-integrity.yml
