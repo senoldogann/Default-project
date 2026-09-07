@@ -132,6 +132,16 @@ PATH="$work/mockbin:$PATH" bash bin/default-init "$local_target" >/dev/null
 [ ! -e "$local_target/docs/assets/hero.svg" ] || fail 'canonical README artwork must not be copied into derived projects'
 assert_contains "$(cat "$local_target/README.md")" '# Local Project'
 
+# The common `mkdir && cd && default-init .` flow must use the directory name.
+current_target="$work/CurrentProject"
+mkdir -p "$current_target"
+(
+  cd "$current_target"
+  PATH="$work/mockbin:$PATH" bash "$root/bin/default-init" . >/dev/null
+)
+[ -d "$current_target/.git" ] || fail 'current-directory mode must initialize git'
+assert_contains "$(cat "$current_target/README.md")" '# CurrentProject'
+
 # Finder noise alone must not make a prepared Desktop folder unusable.
 ds_target="$work/DSStoreProject"
 mkdir -p "$ds_target"
