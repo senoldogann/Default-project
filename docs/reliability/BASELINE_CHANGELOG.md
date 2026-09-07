@@ -4,6 +4,20 @@ This changelog tracks the reusable **agent/context/repository-governance baselin
 
 Derived repositories are snapshots. Use this file to decide which later baseline changes are worth porting; do not blindly overwrite project-specific files. See `UPGRADING.md`.
 
+## 1.1.0 — 2026-09-07
+
+Additive distribution and bootstrap improvements:
+
+- `default-init` CLI can initialize the portable baseline into an absent or empty local directory with one command,
+- optional `--github` mode creates a GitHub repository and applies the generic repository governance/security setup,
+- GitHub repositories created by the CLI are private by default; `--public` is explicit,
+- `baseline.manifest` is an explicit allowlist, so canonical-only license, CODEOWNERS, artwork, maintainer plans, and CLI source files are not copied into derived projects,
+- generated projects receive a minimal project README and a fresh `main` git repository without Default Project git history,
+- `default-init check` reports local vs upstream baseline versions,
+- `default-init upgrade` is deliberately non-destructive and never overwrites project-specific files,
+- installer support places the CLI in `~/.local/bin` by default,
+- CI covers mocked CLI behavior and live bootstrap smoke validation when the distribution files are present.
+
 ## 1.0.0 — 2026-09-07
 
 Initial stable baseline:

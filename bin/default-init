@@ -1,0 +1,257 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CLI_VERSION='1.1.0'
+DEFAULT_REPOSITORY='senoldogann/Default-project'
+DEFAULT_REF='main'
+
+repository=${DEFAULT_INIT_REPOSITORY:-$DEFAULT_REPOSITORY}
+ref=${DEFAULT_INIT_REF:-$DEFAULT_REF}
+archive_url=${DEFAULT_INIT_ARCHIVE_URL:-https://github.com/$repository/archive/refs/heads/$ref.tar.gz}
+version_url=${DEFAULT_INIT_VERSION_URL:-https://raw.githubusercontent.com/$repository/$ref/.agent/BASELINE_VERSION}
+
+usage() {
+  cat <<'EOF'
+default-init — bootstrap the Default Project governance/context baseline
+
+Usage:
+  default-init PATH [--github] [--private|--public]
+  default-init new PATH [--github] [--private|--public]
+  default-init check [PATH]
+  default-init upgrade [PATH]
+  default-init version
+  default-init help
+
+Examples:
+  default-init ~/Desktop/MyProject
+  default-init ~/Desktop/MyProject --github
+  default-init ~/Desktop/OpenSourceTool --github --public
+  default-init check
+
+Notes:
+  - PATH must be absent or empty (a lone .DS_Store is tolerated).
+  - --github defaults to a private repository unless --public is supplied.
+  - upgrade is intentionally non-destructive; it reports baseline drift only.
+EOF
+}
+
+die() {
+  printf 'default-init: %s\n' "$1" >&2
+  exit 1
+}
+
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || die "$1 is required"
+}
+
+fetch_latest_version() {
+  require_command curl
+  latest=$(curl -fsSL "$version_url" | tr -d '\r\n') || die 'could not read latest baseline version'
+  printf '%s' "$latest" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || die "remote baseline version is invalid: $latest"
+  printf '%s\n' "$latest"
+}
+
+local_version_for() {
+  project_path=$1
+  version_file="$project_path/.agent/BASELINE_VERSION"
+  [ -f "$version_file" ] || die "no .agent/BASELINE_VERSION found in $project_path"
+  local_version=$(tr -d '\r\n' <"$version_file")
+  printf '%s' "$local_version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || die "local baseline version is invalid: $local_version"
+  printf '%s\n' "$local_version"
+}
+
+report_versions() {
+  project_path=$1
+  local_version=$(local_version_for "$project_path")
+  latest_version=$(fetch_latest_version)
+  printf 'Local baseline:  %s\n' "$local_version"
+  printf 'Latest baseline: %s\n' "$latest_version"
+  if [ "$local_version" = "$latest_version" ]; then
+    printf '%s\n' 'Baseline is up to date.'
+  else
+    printf '%s\n' 'Baseline differs from the current upstream baseline.'
+    printf '%s\n' 'Review docs/reliability/BASELINE_CHANGELOG.md and UPGRADING.md before reconciling changes.'
+  fi
+}
+
+validate_manifest_entry() {
+  entry=$1
+  case "$entry" in
+    ''|'#'*) return 1 ;;
+    /*|..|../*|*/..|*/../*) die "unsafe path in baseline.manifest: $entry" ;;
+  esac
+  return 0
+}
+
+copy_portable_baseline() {
+  source_root=$1
+  stage=$2
+  manifest="$source_root/baseline.manifest"
+  [ -f "$manifest" ] || die 'downloaded baseline does not contain baseline.manifest'
+
+  while IFS= read -r raw_entry || [ -n "$raw_entry" ]; do
+    entry=${raw_entry%$'\r'}
+    validate_manifest_entry "$entry" || continue
+    source_path="$source_root/$entry"
+    [ -e "$source_path" ] || die "baseline manifest entry is missing: $entry"
+    destination="$stage/$entry"
+    mkdir -p "$(dirname "$destination")"
+    cp -pR "$source_path" "$destination"
+  done <"$manifest"
+}
+
+ensure_target_is_safe() {
+  target=$1
+  if [ -e "$target" ] && [ ! -d "$target" ]; then
+    die "target exists and is not a directory: $target"
+  fi
+  if [ -d "$target" ]; then
+    unexpected=$(find "$target" -mindepth 1 -maxdepth 1 ! -name '.DS_Store' -print -quit)
+    [ -z "$unexpected" ] || die "target directory is not empty: $target"
+  fi
+}
+
+init_new_project() {
+  target=''
+  github=false
+  visibility='private'
+  visibility_explicit=false
+
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --github) github=true ;;
+      --public) visibility='public'; visibility_explicit=true ;;
+      --private) visibility='private'; visibility_explicit=true ;;
+      -h|--help) usage; return 0 ;;
+      -*) die "unknown option: $1" ;;
+      *)
+        [ -z "$target" ] || die "unexpected argument: $1"
+        target=$1
+        ;;
+    esac
+    shift
+  done
+
+  [ -n "$target" ] || die 'a target directory is required'
+  if ! $github && $visibility_explicit; then
+    die '--public/--private requires --github'
+  fi
+
+  ensure_target_is_safe "$target"
+  trimmed_target=${target%/}
+  [ -n "$trimmed_target" ] || die 'target directory cannot be filesystem root'
+  project_name=$(basename "$trimmed_target")
+  [ -n "$project_name" ] || die 'could not determine project name'
+
+  if $github && ! printf '%s' "$project_name" | grep -Eq '^[A-Za-z0-9._-]+$'; then
+    die 'GitHub mode requires a repository name using only letters, numbers, ., _, or -'
+  fi
+
+  require_command git
+  require_command curl
+  require_command tar
+
+  if $github; then
+    require_command gh
+    gh auth status >/dev/null 2>&1 || die 'GitHub CLI is not authenticated; run gh auth login first'
+    git config --get user.name >/dev/null 2>&1 || die 'git user.name is required for --github mode'
+    git config --get user.email >/dev/null 2>&1 || die 'git user.email is required for --github mode'
+  fi
+
+  work=$(mktemp -d)
+  cleanup() { rm -rf "$work"; }
+  trap cleanup EXIT
+
+  archive="$work/baseline.tar.gz"
+  extracted="$work/extracted"
+  stage="$work/stage"
+  mkdir -p "$extracted" "$stage"
+
+  printf 'Downloading Default Project baseline...\n'
+  curl -fsSL "$archive_url" -o "$archive" || die 'failed to download Default Project baseline archive'
+  tar -xzf "$archive" -C "$extracted" || die 'failed to extract baseline archive'
+
+  source_root=$(find "$extracted" -mindepth 1 -maxdepth 1 -type d -print -quit)
+  [ -n "$source_root" ] || die 'baseline archive did not contain a repository directory'
+
+  copy_portable_baseline "$source_root" "$stage"
+  baseline_version=$(local_version_for "$stage")
+
+  cat >"$stage/README.md" <<EOF
+# $project_name
+
+<!-- Initialized with Default Project baseline $baseline_version. Baseline state is tracked in .agent/BASELINE_VERSION. -->
+EOF
+
+  git init -q -b main "$stage"
+  (
+    cd "$stage"
+    bash scripts/validate-template.sh >/dev/null
+  ) || die 'downloaded baseline failed its own integrity validation'
+  rm -rf "$stage/.git"
+
+  mkdir -p "$target"
+  rm -f "$target/.DS_Store"
+  cp -pR "$stage"/. "$target"/
+  git init -q -b main "$target"
+  (
+    cd "$target"
+    bash scripts/validate-template.sh >/dev/null
+  ) || die 'generated project failed integrity validation'
+
+  target_abs=$(cd "$target" && pwd -P)
+  printf 'Initialized %s with baseline %s\n' "$target_abs" "$baseline_version"
+
+  if $github; then
+    git -C "$target" add .
+    git -C "$target" commit -q -m 'chore: initialize project'
+
+    if [ "$visibility" = 'public' ]; then
+      visibility_flag='--public'
+    else
+      visibility_flag='--private'
+    fi
+
+    (
+      cd "$target"
+      gh repo create "$project_name" --source . "$visibility_flag" --remote origin --push
+    )
+    full_repo=$(cd "$target" && gh repo view --json nameWithOwner --jq '.nameWithOwner')
+    [ -n "$full_repo" ] || die 'GitHub repository was created but could not be resolved'
+    (
+      cd "$target"
+      bash scripts/setup-github-repository.sh "$full_repo"
+    )
+    printf 'GitHub repository configured: %s\n' "$full_repo"
+  fi
+}
+
+command=${1:-help}
+case "$command" in
+  help|-h|--help)
+    usage
+    ;;
+  version|-V|--version)
+    printf 'default-init %s\n' "$CLI_VERSION"
+    ;;
+  new)
+    shift
+    init_new_project "$@"
+    ;;
+  check)
+    shift
+    report_versions "${1:-.}"
+    ;;
+  upgrade)
+    shift
+    report_versions "${1:-.}"
+    printf '%s\n' 'Upgrade is intentionally non-destructive in this release.'
+    printf '%s\n' 'No project files were changed.'
+    ;;
+  -*)
+    die "unknown command or option: $command"
+    ;;
+  *)
+    init_new_project "$@"
+    ;;
+esac

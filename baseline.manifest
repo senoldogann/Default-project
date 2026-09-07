@@ -1,0 +1,32 @@
+# Portable files copied into a derived project by default-init.
+# Canonical-only README artwork, LICENSE, CODEOWNERS, CLI sources, and maintainer tooling stay behind.
+.editorconfig
+.gitignore
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+.agent/README.md
+.agent/BASELINE_VERSION
+.agent/HANDOFF.example.md
+.github/copilot-instructions.md
+.github/ISSUE_TEMPLATE/bug.yml
+.github/ISSUE_TEMPLATE/feature.yml
+.github/pull_request_template.md
+.github/workflows/template-integrity.yml
+docs/README.md
+docs/architecture/README.md
+docs/decisions/README.md
+docs/decisions/ADR-TEMPLATE.md
+docs/plans/README.md
+docs/plans/PLAN-TEMPLATE.md
+docs/plans/active/.gitkeep
+docs/plans/completed/.gitkeep
+docs/reliability/README.md
+docs/reliability/BASELINE_CHANGELOG.md
+docs/reliability/GITHUB_PROTECTIONS.md
+docs/reliability/UPGRADING.md
+scripts/checkpoint.sh
+scripts/validate-template.sh
+scripts/apply-github-protections.sh
+scripts/setup-github-repository.sh
+scripts/test-github-setup.sh
