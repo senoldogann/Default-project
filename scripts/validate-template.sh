@@ -90,10 +90,11 @@ done
 if [ -f baseline.manifest ]; then
   for file in bin/default-init scripts/install-default-init.sh scripts/test-default-init.sh; do
     [ -f "$file" ] || fail "missing canonical distribution file: $file"
+    [ -x "$file" ] || fail "canonical distribution file must be executable: $file"
     bash -n "$file"
   done
 
-  cli_version=$(bash bin/default-init version)
+  cli_version=$(bin/default-init version)
   [ "$cli_version" = "default-init $baseline_version" ] || fail "CLI version ($cli_version) must match baseline $baseline_version"
 
   while IFS= read -r raw_entry || [ -n "$raw_entry" ]; do
@@ -105,7 +106,7 @@ if [ -f baseline.manifest ]; then
     [ -e "$entry" ] || fail "baseline.manifest references missing path: $entry"
   done < baseline.manifest
 
-  for forbidden in LICENSE .github/CODEOWNERS docs/assets bin/default-init scripts/install-default-init.sh scripts/test-default-init.sh docs/plans/active/default-init-cli.md; do
+  for forbidden in LICENSE .github/CODEOWNERS .github/ISSUE_TEMPLATE/config.yml docs/assets bin/default-init scripts/install-default-init.sh scripts/test-default-init.sh docs/plans/active/default-init-cli.md; do
     if grep -qxF "$forbidden" baseline.manifest; then
       fail "canonical-only path must not be portable: $forbidden"
     fi
