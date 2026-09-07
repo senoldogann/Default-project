@@ -140,7 +140,12 @@ init_new_project() {
   ensure_target_is_safe "$target"
   trimmed_target=${target%/}
   [ -n "$trimmed_target" ] || die 'target directory cannot be filesystem root'
-  project_name=$(basename "$trimmed_target")
+  if [ -d "$target" ]; then
+    resolved_target=$(cd "$target" && pwd -P)
+    project_name=$(basename "$resolved_target")
+  else
+    project_name=$(basename "$trimmed_target")
+  fi
   [ -n "$project_name" ] || die 'could not determine project name'
 
   if $github && ! printf '%s' "$project_name" | grep -Eq '^[A-Za-z0-9._-]+$'; then
