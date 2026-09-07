@@ -152,6 +152,16 @@ if PATH="$work/mockbin:$PATH" bash bin/default-init "$work/no-github" --public >
   fail '--public without --github must be rejected'
 fi
 
+# GitHub mode validates the basename before downloading or creating files.
+unsafe_github="$work/Github Project"
+: >"$DEFAULT_INIT_GH_LOG"
+if HOME="$work/home" PATH="$work/mockbin:$PATH" bash bin/default-init "$unsafe_github" --github >/dev/null 2>"$work/unsafe.err"; then
+  fail 'GitHub mode must reject an unsafe repository basename'
+fi
+assert_contains "$(cat "$work/unsafe.err")" 'GitHub mode requires a repository name using only letters, numbers, ., _, or -'
+[ ! -e "$unsafe_github" ] || fail 'unsafe GitHub repository name must fail before creating target files'
+[ ! -s "$DEFAULT_INIT_GH_LOG" ] || fail 'unsafe GitHub repository name must fail before invoking gh'
+
 check_output=$(cd "$local_target" && PATH="$work/mockbin:$PATH" bash "$root/bin/default-init" check)
 assert_contains "$check_output" 'Local baseline:  1.1.0'
 assert_contains "$check_output" 'Latest baseline: 1.1.0'
