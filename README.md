@@ -8,7 +8,7 @@
 A technology-agnostic, agent-ready GitHub template for long-lived software projects. It gives humans and coding agents a small, verifiable project memory without turning every session into an archaeological dig through old chats.
 
 <p align="center">
-  <img src="docs/assets/default-project-hero.webp" alt="Cartoon illustration of Default Project as an open-source, AI-agent-ready development workspace" width="900">
+  <img src="docs/assets/default-project-hero.svg" alt="Cartoon illustration of Default Project as an open-source, AI-agent-ready development workspace" width="900">
 </p>
 
 > **One template. Any stack. Fresh agents can recover the project from repository evidence instead of guessing from conversation history.**
@@ -63,7 +63,7 @@ continue
 The point is not to make the agent remember everything. The point is to make it cheap to find the right thing again.
 
 <p align="center">
-  <img src="docs/assets/default-project-workflow.webp" alt="Cartoon workflow showing how a developer uses the template, works with AI agents, stays organized, and ships" width="900">
+  <img src="docs/assets/default-project-workflow.svg" alt="Cartoon workflow showing how a developer uses the template, works with AI agents, stays organized, and ships" width="900">
 </p>
 
 ## Context budget
