@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Default Project cartoon hero</title>
+  <desc id="desc">A playful developer, friendly coding robot, repository folder, verification shield, and branching project map.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f8f0ff"/><stop offset="1" stop-color="#e7f7ff"/></linearGradient>
+    <linearGradient id="folder" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7c5cff"/><stop offset="1" stop-color="#4c8dff"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="8" flood-opacity=".14"/></filter>
+  </defs>
+  <rect width="1200" height="630" rx="32" fill="url(#bg)"/>
+  <circle cx="96" cy="86" r="45" fill="#ffd56a" opacity=".65"/><circle cx="1110" cy="108" r="62" fill="#87e5d1" opacity=".5"/>
+  <path d="M55 535 C210 455 300 595 460 520 S780 470 1145 520" fill="none" stroke="#c4d7ff" stroke-width="24" stroke-linecap="round" opacity=".6"/>
+  <g filter="url(#shadow)">
+    <rect x="385" y="130" width="430" height="330" rx="28" fill="#fff" stroke="#27263a" stroke-width="5"/>
+    <path d="M385 190h430v242c0 16-12 28-28 28H413c-16 0-28-12-28-28z" fill="url(#folder)"/>
+    <path d="M410 130h145l34 60H385v-32c0-16 11-28 25-28z" fill="#9a83ff"/>
+    <text x="600" y="250" text-anchor="middle" font-family="Arial,sans-serif" font-size="44" font-weight="700" fill="#fff">Default Project</text>
+    <text x="600" y="291" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" fill="#eaf1ff">agent-ready • stack-neutral • recoverable</text>
+    <g fill="#fff" stroke="#27263a" stroke-width="4"><circle cx="495" cy="355" r="18"/><circle cx="600" cy="355" r="18"/><circle cx="705" cy="355" r="18"/></g>
+    <path d="M513 355h69M618 355h69M600 373v38" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+    <rect x="548" y="410" width="104" height="30" rx="15" fill="#fff"/><text x="600" y="432" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#4f6ee8">VERIFY</text>
+  </g>
+  <g transform="translate(80 210)" stroke="#27263a" stroke-width="5" stroke-linejoin="round">
+    <circle cx="130" cy="92" r="58" fill="#f6bc8b"/><path d="M78 77c7-63 108-70 115-2-25-28-69-32-115 2z" fill="#312b38"/><path d="M87 107c11 37 29 52 44 52 21 0 43-22 50-54-26 19-63 21-94 2z" fill="#704c37"/>
+    <circle cx="111" cy="91" r="4" fill="#27263a"/><circle cx="154" cy="91" r="4" fill="#27263a"/><path d="M118 118q15 12 30 0" fill="none" stroke-linecap="round"/>
+    <path d="M63 280c2-83 34-121 69-121s69 38 73 121" fill="#ffd56a"/><rect x="30" y="255" width="205" height="112" rx="12" fill="#22263a"/><rect x="50" y="274" width="165" height="70" rx="7" fill="#dff7ff" stroke="none"/><path d="M78 299h52M78 317h88" stroke="#5f72ff" stroke-width="7" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(865 208)" stroke="#27263a" stroke-width="5" stroke-linejoin="round">
+    <path d="M133 18v35" fill="none"/><circle cx="133" cy="13" r="10" fill="#ff6c91"/><rect x="54" y="48" width="158" height="122" rx="35" fill="#fff"/><rect x="75" y="76" width="116" height="57" rx="20" fill="#dff7ff"/>
+    <circle cx="109" cy="104" r="10" fill="#5f72ff" stroke="none"/><circle cx="158" cy="104" r="10" fill="#5f72ff" stroke="none"/><path d="M112 141q22 19 43 0" fill="none" stroke-linecap="round"/><rect x="72" y="165" width="122" height="138" rx="29" fill="#87e5d1"/><path d="M102 214h63M102 239h45" stroke="#27263a" stroke-width="8" stroke-linecap="round"/><path d="M72 202l-38 38M194 202l38 38" fill="none" stroke-linecap="round"/>
+  </g>
+  <g font-family="Arial,sans-serif" font-weight="700" fill="#27263a">
+    <g transform="translate(65 62)"><rect width="220" height="70" rx="28" fill="#fff" stroke="#27263a" stroke-width="4"/><text x="110" y="43" text-anchor="middle" font-size="21">small context</text><path d="M180 66l30 28-6-31" fill="#fff" stroke="#27263a" stroke-width="4"/></g>
+    <g transform="translate(895 56)"><rect width="230" height="70" rx="28" fill="#fff" stroke="#27263a" stroke-width="4"/><text x="115" y="43" text-anchor="middle" font-size="21">repo = truth</text><path d="M36 66L8 94l6-31" fill="#fff" stroke="#27263a" stroke-width="4"/></g>
+  </g>
+  <g transform="translate(758 450)" filter="url(#shadow)"><path d="M78 0l68 24v55c0 53-35 90-68 108C45 169 10 132 10 79V24z" fill="#fff" stroke="#27263a" stroke-width="5"/><path d="M44 91l24 24 48-57" fill="none" stroke="#35b785" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><text x="78" y="158" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#27263a">CI + PR</text></g>
+</svg>
