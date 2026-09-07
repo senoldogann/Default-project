@@ -14,7 +14,7 @@ Configures technology-neutral GitHub repository governance:
 - delete branches after merge,
 - allow PR branches to be updated,
 - recommended default-branch protection ruleset,
-- private vulnerability reporting when supported for a public repository.
+- public-repository security features when GitHub supports them.
 
 --template-origin additionally configures senoldogann/Default-project as the
 GitHub Template Repository and installs its public description/topics. The flag
@@ -123,7 +123,44 @@ visibility=$(gh api \
   -H "X-GitHub-Api-Version: $API_VERSION" \
   "repos/$repo" \
   --jq '.visibility')
+
 if [ "$visibility" = 'public' ]; then
+  if gh api \
+    --method PUT \
+    -H "X-GitHub-Api-Version: $API_VERSION" \
+    "repos/$repo/vulnerability-alerts" >/dev/null 2>&1; then
+    printf 'Dependabot alerts are enabled.\n'
+  else
+    printf 'WARN: Dependabot alerts could not be enabled.\n' >&2
+  fi
+
+  if gh api \
+    --method PUT \
+    -H "X-GitHub-Api-Version: $API_VERSION" \
+    "repos/$repo/automated-security-fixes" >/dev/null 2>&1; then
+    printf 'Dependabot security updates are enabled.\n'
+  else
+    printf 'WARN: Dependabot security updates could not be enabled.\n' >&2
+  fi
+
+  cat >"$tmp" <<'JSON'
+{
+  "security_and_analysis": {
+    "secret_scanning": {"status": "enabled"},
+    "secret_scanning_push_protection": {"status": "enabled"}
+  }
+}
+JSON
+  if gh api \
+    --method PATCH \
+    -H "X-GitHub-Api-Version: $API_VERSION" \
+    "repos/$repo" \
+    --input "$tmp" >/dev/null 2>&1; then
+    printf 'Secret scanning and push protection are enabled.\n'
+  else
+    printf 'WARN: secret scanning/push protection could not be enabled; check repository security availability.\n' >&2
+  fi
+
   if gh api \
     --method PUT \
     -H "X-GitHub-Api-Version: $API_VERSION" \
@@ -138,7 +175,7 @@ printf '\nVerified repository settings:\n'
 gh api \
   -H "X-GitHub-Api-Version: $API_VERSION" \
   "repos/$repo" \
-  --jq '{full_name, visibility, is_template, allow_squash_merge, allow_merge_commit, allow_rebase_merge, delete_branch_on_merge, allow_update_branch}'
+  --jq '{full_name, visibility, is_template, allow_squash_merge, allow_merge_commit, allow_rebase_merge, delete_branch_on_merge, allow_update_branch, security_and_analysis}'
 
 printf '\nActive repository rulesets:\n'
 gh api \
