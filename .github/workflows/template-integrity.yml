@@ -1,0 +1,17 @@
+name: Template integrity
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Validate agent-ready template
+        run: bash scripts/validate-template.sh
