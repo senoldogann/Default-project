@@ -6,6 +6,7 @@ Baseline-level references in this template:
 
 - `GITHUB_PROTECTIONS.md` — default-branch, PR, merge, and public-repository security setup.
 - `UPGRADING.md` — safe upgrade policy for repositories created from a snapshot of this baseline.
+- `BASELINE_CHANGELOG.md` — versioned changes to the reusable agent/context/repository-governance baseline.
 
 Good project-specific candidates include:
 
