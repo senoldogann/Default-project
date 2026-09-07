@@ -36,10 +36,11 @@ cat >"$payload" <<JSON
   "rules": [
     {"type": "deletion"},
     {"type": "non_fast_forward"},
+    {"type": "required_linear_history"},
     {
       "type": "pull_request",
       "parameters": {
-        "allowed_merge_methods": ["merge", "squash", "rebase"],
+        "allowed_merge_methods": ["squash"],
         "dismiss_stale_reviews_on_push": false,
         "require_code_owner_review": false,
         "require_last_push_approval": false,
