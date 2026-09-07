@@ -23,6 +23,21 @@ jobs:
           if [ -f scripts/test-default-init.sh ]; then
             bash scripts/test-default-init.sh
           fi
+      - name: Live-smoke portable default-init when present
+        shell: bash
+        env:
+          DEFAULT_INIT_REF: ${{ github.head_ref || github.ref_name }}
+        run: |
+          if [ -f bin/default-init ]; then
+            smoke_root=$(mktemp -d)
+            bash bin/default-init "$smoke_root/SmokeProject"
+            test -f "$smoke_root/SmokeProject/AGENTS.md"
+            test -f "$smoke_root/SmokeProject/.agent/BASELINE_VERSION"
+            test -d "$smoke_root/SmokeProject/.git"
+            test ! -e "$smoke_root/SmokeProject/LICENSE"
+            test ! -e "$smoke_root/SmokeProject/.github/CODEOWNERS"
+            test ! -e "$smoke_root/SmokeProject/docs/assets"
+          fi
       - name: Smoke-test checkpoint helper
         shell: bash
         run: |
