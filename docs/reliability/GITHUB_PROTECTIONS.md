@@ -1,6 +1,6 @@
 # GitHub repository protections
 
-Files can travel with a GitHub template; repository settings generally need to be configured per repository. This document defines the recommended baseline for the default branch.
+Files can travel with a GitHub template; repository settings generally do not. This document defines the recommended technology-neutral baseline for each repository created from this template.
 
 ## Recommended default-branch ruleset
 
@@ -12,6 +12,8 @@ Enforce:
 - require status check `validate`,
 - require the branch to be up to date before merge,
 - require review conversations to be resolved,
+- require linear history,
+- allow squash merge as the canonical merge method,
 - block force pushes,
 - block branch deletion.
 
@@ -26,15 +28,33 @@ For a team repository, strengthen the pull-request rule to:
 
 Do not add an unrestricted admin bypass merely to make automation convenient. If a bypass is necessary, scope it narrowly and document why.
 
-## Apply with GitHub CLI
+## Apply the complete repository baseline
 
 With `gh` authenticated to an account that has repository Administration write permission:
+
+```bash
+bash scripts/setup-github-repository.sh owner/repository
+```
+
+The setup helper configures merge hygiene, invokes the idempotent branch-ruleset helper, and for public repositories attempts to enable Dependabot alerts/security updates, secret scanning with push protection, and private vulnerability reporting.
+
+For the canonical `senoldogann/Default-project` repository only:
+
+```bash
+bash scripts/setup-github-repository.sh senoldogann/Default-project --template-origin
+```
+
+That additional flag enables GitHub's Template Repository mode and installs the canonical public description/topics. The script rejects the flag for derived repositories.
+
+## Lower-level ruleset helper
+
+If only the branch ruleset needs to be created or reconciled:
 
 ```bash
 bash scripts/apply-github-protections.sh owner/repository
 ```
 
-The script is idempotent by ruleset name: it creates the baseline ruleset when absent and updates the existing baseline when present.
+The helper is idempotent by ruleset name: it creates the baseline ruleset when absent and updates the existing baseline when present.
 
 ## Pull-request workflow security
 
@@ -48,3 +68,7 @@ Treat fork PR contents as attacker-controlled until reviewed.
 - Pin third-party actions to immutable commit SHAs; use Dependabot to keep pins current.
 
 The template's integrity workflow follows these rules: it uses `pull_request`, grants only `contents: read`, and pins `actions/checkout` to a full commit SHA.
+
+## Do not confuse governance with application architecture
+
+These settings protect repository history and contribution flow. They do not choose a framework, deployment platform, database, testing stack, or application architecture. Derived projects should add those controls only when their actual requirements justify them.

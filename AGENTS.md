@@ -49,6 +49,8 @@ Memory may suggest where to look. Repository evidence decides what is true.
 - Make the smallest coherent change that satisfies the requested outcome.
 - Avoid unrelated refactors, speculative abstractions, and new dependencies without demonstrated need.
 - Preserve public contracts unless the task explicitly changes them.
+- Keep this reusable baseline limited to agent/context/repository governance; do not add framework, runtime, product architecture, auth, database, UI, or other application-starter assumptions.
+- Put reusable runtime/configuration code in versioned packages and conditional starter code in generators or stack-specific archetypes instead of copying it into this baseline.
 - State material assumptions in the active plan, ADR, or final report when they cannot be verified directly.
 - Do not record speculation as durable project knowledge.
 
