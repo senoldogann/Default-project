@@ -1,0 +1,9 @@
+# Default reviewer for repository changes.
+* @senoldogann
+
+# High-impact project-control surfaces. Keep explicit even though the wildcard applies.
+/.github/workflows/ @senoldogann
+/.github/CODEOWNERS @senoldogann
+/AGENTS.md @senoldogann
+/scripts/ @senoldogann
+/SECURITY.md @senoldogann
