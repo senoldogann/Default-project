@@ -76,10 +76,11 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 if [[ "$url" == *'/BASELINE_VERSION' ]]; then
+  latest=${DEFAULT_INIT_LATEST_VERSION:-1.1.0}
   if [ -n "$out" ]; then
-    printf '%s\n' '1.1.0' >"$out"
+    printf '%s\n' "$latest" >"$out"
   else
-    printf '%s\n' '1.1.0'
+    printf '%s\n' "$latest"
   fi
 else
   [ -n "$out" ] || { printf 'mock curl requires -o for archive\n' >&2; exit 1; }
@@ -131,6 +132,14 @@ PATH="$work/mockbin:$PATH" bash bin/default-init "$local_target" >/dev/null
 [ ! -e "$local_target/docs/assets/hero.svg" ] || fail 'canonical README artwork must not be copied into derived projects'
 assert_contains "$(cat "$local_target/README.md")" '# Local Project'
 
+# Finder noise alone must not make a prepared Desktop folder unusable.
+ds_target="$work/DSStoreProject"
+mkdir -p "$ds_target"
+printf 'finder-noise' >"$ds_target/.DS_Store"
+PATH="$work/mockbin:$PATH" bash bin/default-init "$ds_target" >/dev/null
+[ -f "$ds_target/AGENTS.md" ] || fail '.DS_Store-only target should be accepted'
+[ ! -e "$ds_target/.DS_Store" ] || fail '.DS_Store should be removed during initialization'
+
 bad_target="$work/non-empty"
 mkdir -p "$bad_target"
 printf '%s\n' 'keep-me' >"$bad_target/existing.txt"
@@ -139,14 +148,37 @@ if PATH="$work/mockbin:$PATH" bash bin/default-init "$bad_target" >/dev/null 2>&
 fi
 [ "$(cat "$bad_target/existing.txt")" = 'keep-me' ] || fail 'existing target contents must remain untouched'
 
+if PATH="$work/mockbin:$PATH" bash bin/default-init "$work/no-github" --public >/dev/null 2>&1; then
+  fail '--public without --github must be rejected'
+fi
+
 check_output=$(cd "$local_target" && PATH="$work/mockbin:$PATH" bash "$root/bin/default-init" check)
 assert_contains "$check_output" 'Local baseline:  1.1.0'
 assert_contains "$check_output" 'Latest baseline: 1.1.0'
 assert_contains "$check_output" 'Baseline is up to date.'
 
+agents_before=$(cat "$local_target/AGENTS.md")
+export DEFAULT_INIT_LATEST_VERSION='1.2.0'
 upgrade_output=$(cd "$local_target" && PATH="$work/mockbin:$PATH" bash "$root/bin/default-init" upgrade)
+assert_contains "$upgrade_output" 'Latest baseline: 1.2.0'
+assert_contains "$upgrade_output" 'Baseline differs from the current upstream baseline.'
 assert_contains "$upgrade_output" 'No project files were changed.'
+[ "$(cat "$local_target/AGENTS.md")" = "$agents_before" ] || fail 'upgrade must not overwrite project files'
+unset DEFAULT_INIT_LATEST_VERSION
 
+# GitHub mode must default to private.
+: >"$DEFAULT_INIT_GH_LOG"
+: >"$DEFAULT_INIT_SETUP_LOG"
+export DEFAULT_INIT_EXPECTED_REPO='PrivateProject'
+private_target="$work/PrivateProject"
+HOME="$work/home" PATH="$work/mockbin:$PATH" bash bin/default-init "$private_target" --github >/dev/null
+assert_contains "$(cat "$DEFAULT_INIT_GH_LOG")" 'gh repo create PrivateProject'
+assert_contains "$(cat "$DEFAULT_INIT_GH_LOG")" '--private'
+assert_contains "$(cat "$DEFAULT_INIT_SETUP_LOG")" 'acme/PrivateProject'
+
+# Public GitHub mode is explicit and creates one initial commit.
+: >"$DEFAULT_INIT_GH_LOG"
+: >"$DEFAULT_INIT_SETUP_LOG"
 export DEFAULT_INIT_EXPECTED_REPO='GithubProject'
 github_target="$work/GithubProject"
 HOME="$work/home" PATH="$work/mockbin:$PATH" bash bin/default-init "$github_target" --github --public >/dev/null
